@@ -1,6 +1,11 @@
 name: Super-Linter
 
-on: push
+on:
+  push:
+    branches: [ main ]
+
+env:
+  SPECTRAL_DSN: ${{ secrets.SPECTRAL_DSN }}
 
 jobs:
   super-lint:
@@ -15,3 +20,13 @@ jobs:
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install and run Spectral CI
+      uses: spectralops/spectral-github-action@v3
+      with:
+        spectral-dsn: ${{ env.SPECTRAL_DSN }}
+        spectral-args: scan --ok --engines secrets,iac,oss --include-tags base,audit,iac
